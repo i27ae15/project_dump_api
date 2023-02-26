@@ -69,6 +69,7 @@ print-pp==0.4
 prometheus-client==0.16.0
 prompt-toolkit==3.0.37
 psutil==5.9.4
+psycopg2==2.9.5
 pure-eval==0.2.2
 pycparser==2.21
 Pygments==2.14.0

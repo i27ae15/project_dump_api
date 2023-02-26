@@ -16,7 +16,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-USE_LOCAL_DB = os.environ.get('USE_LOCAL_DB')
+USE_LOCAL_DB = os.environ.get('USE_LOCAL_DB', 'FALSE')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['projectdumpapi-production.up.railway.app']
 
 
 CORS_ALLOWED_ORIGINS = [
