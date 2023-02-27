@@ -32,6 +32,8 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['projectdumpapi-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://projectdumpapi-production.up.railway.app']
+
 
 
 CORS_ALLOWED_ORIGINS = [
