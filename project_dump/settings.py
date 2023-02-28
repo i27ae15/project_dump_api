@@ -25,16 +25,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
+
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['projectdumpapi-production.up.railway.app']
+ALLOWED_HOSTS = ['projectdumpapi-production.up.railway.app', 'localhost']
 CSRF_TRUSTED_ORIGINS = ['https://projectdumpapi-production.up.railway.app']
-
-
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
@@ -47,6 +46,7 @@ CORS_ALLOWED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,6 +77,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+ASGI_APPLICATION = "project_dump.asgi.application"
 
 ROOT_URLCONF = 'project_dump.urls'
 
