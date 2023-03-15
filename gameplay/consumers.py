@@ -1,18 +1,19 @@
 import json
 import threading
 
+
+from time import sleep
+
+
 from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+
+
+from phrases.models.models import StoryTopic
+from phrases.generator import PhraseGenerator
 
 
 from print_pp.logging import Print
 
-from gameplay.models.models import StoryTopic
-
-
-from .phrases import generate_options
-
-
-from time import sleep
 
 
 BACKEND_CODES_INFORMATION = {
@@ -32,8 +33,6 @@ FRONTEND_CODES_INFORMATION = {
     "FGP-102": "Next phrases requested",
 }
 
-
-
 class GamePlayConsumer(WebsocketConsumer):
 
     MAX_OPTIONS_TO_GENERATE = 10
@@ -46,14 +45,12 @@ class GamePlayConsumer(WebsocketConsumer):
             "FGP-102": self.return_next_phrase,
         }
         super().__init__(*args, **kwargs)
+        self.chat = PhraseGenerator(self.CURRENT_TOPIC)
 
 
     def connect(self):
         self.options:list = list()
         self.options_lock = threading.Lock()
-
-        
-
         self.accept()
         
 
@@ -84,7 +81,7 @@ class GamePlayConsumer(WebsocketConsumer):
                 continue
             
             with self.options_lock:
-                options = generate_options(options_to_generate=options_to_generate, topic=self.CURRENT_TOPIC)
+                options = self.chat.generate_phrases(options_to_generate=options_to_generate, topic=self.CURRENT_TOPIC)
                 self.options.extend(options)
             
             if is_first_time:
