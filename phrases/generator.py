@@ -2,10 +2,14 @@ import os
 import openai
 
 
-from gameplay.models.models import StoryTopic
+from .models.models import StoryTopic
 
 
 from dotenv import load_dotenv
+
+
+from print_pp.logging import Print
+
 load_dotenv()
 
 
@@ -34,26 +38,35 @@ class PhraseGenerator:
 
     def generate_phrases(self, num_phrases:int) -> list[str]:
 
-        self.conversation.append({'role': 'user', 'content': f'Genera {num_phrases} frase'})
+        self.conversation.append({'role': 'user', 'content': f'Genera {num_phrases} frase, y al final de cada frase coloca un ~'})
 
         phrases = list()
-        for _ in num_phrases:
+        for _ in range(num_phrases):
+            Print('generating phrase', _)
             phrase = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=self.conversation,
                 temperature=0.7,
                 max_tokens=256
             )
+            Print(phrase)
             phrases.append(phrase['choices'][0]['message']['content'])
+            
 
         return self.clean_phrases(phrases)
 
 
     def clean_phrases(self, options:list[str]) -> list[str]:
-        for i, option in enumerate(options):
-            option = option.replace('"', '').replace('\n', '')
-            options[i] = option
-        return options
+        to_return = list()
+
+        for option in options:
+            option_split = option.split('~')
+
+            for option in option_split:
+                option = option.replace('"', '').replace('\n', '')
+                to_return.append(option)
+
+        return to_return
 
 
     def next_phrase(self) -> list[str]:
@@ -62,3 +75,4 @@ class PhraseGenerator:
 
     def set_topic(self, topic:StoryTopic) -> None:
         self.topic = topic
+

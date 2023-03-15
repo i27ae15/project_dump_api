@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 
-from gameplay.models import StoryTopic
+from phrases.models.models import StoryTopic
 
 
 class GeneratePhrasesQuerySerializer(serializers.Serializer):

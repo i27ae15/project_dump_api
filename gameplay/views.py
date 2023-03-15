@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 
-from gameplay.models.models import StoryTopic
+from phrases.models.models import StoryTopic
 from gameplay.serializers.query_serializers import GeneratePhrasesQuerySerializer
 from gameplay.serializers.model_serializers import StoryTopicModelSerializer
 

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'users',
     'register',
     'gameplay',
+    'phrases',
 
     # third party apps
     'rest_framework',

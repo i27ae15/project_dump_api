@@ -81,7 +81,7 @@ class GamePlayConsumer(WebsocketConsumer):
                 continue
             
             with self.options_lock:
-                options = self.chat.generate_phrases(options_to_generate=options_to_generate, topic=self.CURRENT_TOPIC)
+                options = self.chat.generate_phrases(num_phrases=options_to_generate)
                 self.options.extend(options)
             
             if is_first_time:
