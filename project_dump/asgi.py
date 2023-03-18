@@ -20,6 +20,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 
 import gameplay.routing
+from channels.security.websocket import OriginValidator
 
 
 load_dotenv()
@@ -33,20 +34,21 @@ django_asgi_app = get_asgi_application()
 
 LOCAL_DEVELOPMENT = os.environ.get('LOCAL_DEVELOPMENT', 'FALSE')
 
-if LOCAL_DEVELOPMENT.upper() == 'TRUE' or LOCAL_DEVELOPMENT == '1':
+# if LOCAL_DEVELOPMENT.upper() == 'TRUE' or LOCAL_DEVELOPMENT == '1':
 
-    application = ProtocolTypeRouter(
-        {
-            "http": django_asgi_app,
-            "websocket": AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns))
-        }
-    )
-else:
-    application = ProtocolTypeRouter(
-        {
-            "http": django_asgi_app,
-            "websocket": AllowedHostsOriginValidator(
-                AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns))
-            ),
-        }
-    )
+#     application = ProtocolTypeRouter(
+#         {
+#             "http": django_asgi_app,
+#             "websocket": AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns))
+#         }
+#     )
+# else:
+application = ProtocolTypeRouter(
+    {
+        "http": django_asgi_app,
+        "websocket": OriginValidator(
+            AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns)),
+            ["https://projectdumpapi-production.up.railway.app/"],
+        ),
+    }
+)
