@@ -1,1 +1,1 @@
-web: python manage.py migrate && daphne project_dump.asgi:application
+web: python manage.py migrate && daphne project_dump.asgi:application -b 0.0.0.0 -p $PORT
