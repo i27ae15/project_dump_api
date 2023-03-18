@@ -48,7 +48,7 @@ application = ProtocolTypeRouter(
         "http": django_asgi_app,
         "websocket": OriginValidator(
             AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns)),
-            ["https://projectdumpapi-production.up.railway.app/"],
+            ["https://projectdumpapi-production.up.railway.app"],
         ),
     }
 )
