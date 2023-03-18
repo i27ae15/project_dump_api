@@ -46,9 +46,6 @@ LOCAL_DEVELOPMENT = os.environ.get('LOCAL_DEVELOPMENT', 'FALSE')
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
-        "websocket": OriginValidator(
-            AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns)),
-            ["https://projectdumpapi-production.up.railway.app"],
-        ),
+        "websocket": AuthMiddlewareStack(URLRouter(gameplay.routing.websocket_urlpatterns)),
     }
 )
