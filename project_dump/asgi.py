@@ -7,6 +7,8 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.0/howto/deployment/asgi/
 """
 
+from .wsgi import *  # add this line to top of your code
+
 import os
 
 from dotenv import load_dotenv
