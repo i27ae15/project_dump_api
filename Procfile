@@ -1,1 +1,0 @@
-web: python manage.py migrate && daphne project_dump.asgi:application
