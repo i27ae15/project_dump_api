@@ -1,5 +1,6 @@
 import os
 import openai
+import random
 
 
 from .models.models import StoryTopic
@@ -21,9 +22,10 @@ class PhraseGenerator:
     openai.api_key = OPENAI_API_KEY
     conversation = list()
 
-    def __init__(self, topic:StoryTopic) -> None:
+    def __init__(self, topic:StoryTopic, testing=True) -> None:
         self._topic = topic
         self._system_role = None
+        self.testing = testing
 
         if self._topic:
             self._system_role = f'Eres un generador de frases aleatorias con el tópico de "{self._topic.spanish_name}", \
@@ -37,20 +39,23 @@ class PhraseGenerator:
     
 
     def generate_phrases(self, num_phrases:int) -> list[str]:
-
+        phrases = list()
         self.conversation.append({'role': 'user', 'content': f'Genera {num_phrases} frase, y al final de cada frase coloca un ~'})
 
-        phrases = list()
         for _ in range(num_phrases):
-            Print('generating phrase', _)
-            phrase = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=self.conversation,
-                temperature=0.7,
-                max_tokens=256
-            )
-            Print(phrase)
-            phrases.append(phrase['choices'][0]['message']['content'])
+            if self.testing:
+                phrases.append('random_phrase_with_random_num: ' + str(random.randint(0, 1000)))
+                Print('generating testing phrase', _)
+            else:
+                Print('generating phrase', _)
+                phrase = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=self.conversation,
+                    temperature=0.7,
+                    max_tokens=256
+                )
+                Print(phrase)
+                phrases.append(phrase['choices'][0]['message']['content'])
             
 
         return self.clean_phrases(phrases)

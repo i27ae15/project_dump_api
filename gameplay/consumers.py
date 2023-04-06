@@ -26,7 +26,7 @@ BACKEND_CODES_INFORMATION = {
 
 
 FRONTEND_CODES_INFORMATION = {
-    "FGT-101": "Topic selected",
+    "FGT-101": "Select topic",
 
     "FGP-100": "Generate initial phrases requested",
     "FGP-101": "Initial phrases requested",
@@ -36,16 +36,16 @@ FRONTEND_CODES_INFORMATION = {
 class GamePlayConsumer(WebsocketConsumer):
 
     MAX_OPTIONS_TO_GENERATE = 10
-    CURRENT_TOPIC = None
 
     def __init__(self, *args, **kwargs):
-        self.CODES = {
+        self.current_topic = None
+        self.codes = {
             "FGT-101": self.set_current_topic,
             "FGP-101": self.return_initial_phrases,
             "FGP-102": self.return_next_phrase,
         }
         super().__init__(*args, **kwargs)
-        self.chat = PhraseGenerator(self.CURRENT_TOPIC)
+        self.phrases_generator = PhraseGenerator(self.current_topic)
 
 
     def connect(self):
@@ -61,13 +61,11 @@ class GamePlayConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
        
-        
         if text_data_json["code"] == 'FGP-100':
             threading.Thread(target=self.generate_phrases).start()
             return
 
-
-        self.CODES[text_data_json["code"]](text_data_json)
+        self.codes[text_data_json["code"]](text_data_json)
 
 
     def generate_phrases(self) -> list[str]:
@@ -81,7 +79,7 @@ class GamePlayConsumer(WebsocketConsumer):
                 continue
             
             with self.options_lock:
-                options = self.chat.generate_phrases(num_phrases=options_to_generate)
+                options = self.phrases_generator.generate_phrases(num_phrases=options_to_generate)
                 self.options.extend(options)
             
             if is_first_time:
@@ -113,13 +111,13 @@ class GamePlayConsumer(WebsocketConsumer):
 
     def set_current_topic(self, data:dict):
         
-        topic_id = data['extra_key']
+        topic_id = data['topic_id']
 
         if topic_id == "NONE":
-            self.CURRENT_TOPIC = None
+            self.current_topic = None
             return
 
-        try: self.CURRENT_TOPIC = StoryTopic.objects.get(id=topic_id).spanish_name
+        try: self.current_topic = StoryTopic.objects.get(id=topic_id).spanish_name
         except: self.send(text_data=json.dumps({"code": "BGT-404"}))
 
         self.send(text_data=json.dumps({"code": "BGT-200"}))
