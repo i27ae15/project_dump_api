@@ -33,6 +33,7 @@ FRONTEND_CODES_INFORMATION = {
     "FGP-102": "Next phrases requested",
 }
 
+
 class GamePlayConsumer(WebsocketConsumer):
 
     MAX_OPTIONS_TO_GENERATE = 10

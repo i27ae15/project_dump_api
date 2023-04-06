@@ -3,7 +3,12 @@ import openai
 import random
 
 
+from django.db.models.query import QuerySet
+
+
 from .models.models import StoryTopic
+
+from phrases.models.models import Phrase
 
 
 from dotenv import load_dotenv
@@ -44,7 +49,8 @@ class PhraseGenerator:
 
         for _ in range(num_phrases):
             if self.testing:
-                phrases.append('random_phrase_with_random_num: ' + str(random.randint(0, 1000)))
+                phrases_set:QuerySet[Phrase] = Phrase.objects.all()
+                phrases.append(phrases_set[random.randint(0, phrases_set.count())].phrase)
                 Print('generating testing phrase', _)
             else:
                 Print('generating phrase', _)

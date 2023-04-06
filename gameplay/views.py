@@ -27,6 +27,7 @@ from print_pp.logging import Print
 
 load_dotenv()
 
+
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 
@@ -128,7 +129,4 @@ class GeneratePhrasesView(APIView):
             option = option.replace('"', '').replace('\n', '')
             options[i] = option
         return options
-
-
-
 

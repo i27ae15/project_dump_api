@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models.models import StoryTopic
+from .models.models import StoryTopic, Phrase
 
 admin.site.register(StoryTopic)
-
-# Register your models here.
+admin.site.register(Phrase)
