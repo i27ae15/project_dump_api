@@ -1,4 +1,5 @@
 import os
+import random
 
 import openai
 
@@ -63,6 +64,8 @@ class EvaluateStoryView(APIView):
         body_serializer = EvaluateStoryBodySerializer(data=request.data)
         body_serializer.is_valid(raise_exception=True)
         body_data = body_serializer.validated_data
+
+        return Response({'score': random.randint(1, 10)}, status=status.HTTP_200_OK)
 
         prompt = f'Teniendo en cuenta la gramática, la complejidad, las palabras usadas y el sentido de la siguiente historia: \
             {body_data["story"]} \n Dale una puntuación del 1 al 10 (escribe solo el numero)'

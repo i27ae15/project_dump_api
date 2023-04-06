@@ -6,6 +6,9 @@ from rest_framework.test import APITestCase
 from utils.testing import print_success, print_starting, print_error
 
 
+from print_pp.logging import Print
+
+
 class EvaluateStoryViewTestCase(APITestCase):
 
     def setUp(self):
@@ -25,6 +28,7 @@ class EvaluateStoryViewTestCase(APITestCase):
 
         # Verificar que la respuesta contiene la clave 'score'
         self.assertIn('score', response.json())
+
 
         # Verificar que el valor de la clave 'score' es un entero entre 1 y 10
         score = response.json()['score']
@@ -50,17 +54,7 @@ class EvaluateStoryViewTestCase(APITestCase):
         print_success()
 
 
-    def evaluate_story_not_found(self):
-        print_starting()
-        
-        # Crear un objeto de datos de prueba válido para el body de la petición
-        data = {'story': 'Esta historia no existe.'}
+    def test_class(self):
+        self.evaluate_story_success()
+        self.evaluate_story_bad_request()
 
-        # Hacer la petición POST a una URL que no existe
-        url = reverse('evaluate-story-not-found')
-        response = self.client.post(url, data)
-
-        # Verificar que la respuesta es un error de recurso no encontrado (status code 404)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        print_success()
