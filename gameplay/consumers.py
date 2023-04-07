@@ -110,7 +110,7 @@ class GamePlayConsumer(WebsocketConsumer):
             return
 
         with self.options_lock:
-            self.send_response(code=BKFirstPhrasesGenerated, extra_data={"options": self.options[:options_to_return]})
+            self.send_response(None, extra_data={"options": self.options[:options_to_return]})
             self.options = self.options[5:]
 
 
@@ -131,8 +131,11 @@ class GamePlayConsumer(WebsocketConsumer):
 
     
     def send_response(self, code:Code, extra_data:dict=None):
-
-        data = {"code": code.code}
+        
+        if code:
+            data = {"code": code.code}
+        else:
+            data = dict()
         
         if extra_data: 
             data.update(extra_data)
