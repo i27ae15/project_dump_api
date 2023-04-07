@@ -14,8 +14,8 @@ from phrases.generator import PhraseGenerator
 
 
 from gameplay.codes import (
-    Code, BKFirstPhrasesGenerated, BKNotEnoughPhrasesToReturn, BKTopicNotSelected, BKTopicSelected,
-    FNReturnPentagonPhrases, FNReturnMonoPhrase, FNSelectTopic, PhrasesP5, PhrasesP1
+    Code, FirstPhrasesGenerated, NotEnoughPhrasesToReturn, TopicNotFound, TopicSelected,
+    ReturnPentagonPhrases, ReturnMonoPhrase, SelectTopic, PhrasesP5, PhrasesP1
 )
 
 
@@ -43,15 +43,15 @@ FRONTEND_CODES_INFORMATION = {
 
 class GamePlayConsumer(WebsocketConsumer):
 
-    MAX_OPTIONS_TO_GENERATE = 10
+    MAX_OPTIONS_TO_GENERATE = 20
 
 
     def __init__(self, *args, **kwargs):
         self.current_topic = None
         self.codes = {
-            FNSelectTopic.code: self.set_current_topic,
-            FNReturnPentagonPhrases.code: self.return_phrases,
-            FNReturnMonoPhrase.code: self.return_phrases,
+            SelectTopic.code: self.set_current_topic,
+            ReturnPentagonPhrases.code: self.return_phrases,
+            ReturnMonoPhrase.code: self.return_phrases,
         }
         super().__init__(*args, **kwargs)
         self.phrases_generator = PhraseGenerator(self.current_topic, testing=True)
@@ -93,22 +93,22 @@ class GamePlayConsumer(WebsocketConsumer):
                 self.options.extend(options)
             
             if is_first_time:
-                self.send_response(code=BKFirstPhrasesGenerated)
+                self.send_response(code=FirstPhrasesGenerated)
                 is_first_time = False
 
     
     def return_phrases(self, data:dict):
         
 
-        if data['code'] == FNReturnMonoPhrase.code:
+        if data['code'] == ReturnMonoPhrase.code:
             options_to_return = 1
             code_to_return = PhrasesP1
-        elif data['code'] == FNReturnPentagonPhrases.code:
+        elif data['code'] == ReturnPentagonPhrases.code:
             options_to_return = 5
             code_to_return = PhrasesP5
 
         if not self.options:
-            self.send_response(code=BKNotEnoughPhrasesToReturn)
+            self.send_response(code=NotEnoughPhrasesToReturn)
             return
 
         with self.options_lock:
@@ -126,10 +126,10 @@ class GamePlayConsumer(WebsocketConsumer):
 
         try: 
             self.current_topic = StoryTopic.objects.get(id=topic_id).name
-        except: 
-            self.send_response(code=BKTopicNotSelected)
+        except StoryTopic.DoesNotExist: 
+            self.send_response(code=TopicNotFound)
 
-        self.send_response(code=BKTopicSelected, extra_data={"topic_name": self.current_topic})
+        self.send_response(code=TopicSelected, extra_data={"topic_name": self.current_topic})
 
     
     def send_response(self, code:Code, extra_data:dict=None):
