@@ -26,22 +26,11 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 class PhraseGenerator:
 
     openai.api_key = OPENAI_API_KEY
-    conversation = list()
 
     def __init__(self, topic:StoryTopic, testing=True) -> None:
         self._topic = topic
-        self._system_role = None
         self.testing = testing
-
-        if self._topic:
-            self._system_role = f'Eres un generador de frases aleatorias con el tópico de "{self._topic}", \
-            las frases que generes deben ser divertidas pero cortas, no mas de 5 palabras'
-        else:
-            self._system_role = 'Eres un generador de frases aleatorias con temática aleatoria, \
-            las frases que generes deben ser divertidas pero cortas, no mas de 5 palabras'
-
-
-        self.conversation.append({'role': 'system', 'content': self._system_role})
+        self.conversation = list()
     
 
     def generate_phrases(self, num_phrases:int) -> list[str]:
@@ -52,7 +41,8 @@ class PhraseGenerator:
             for _ in range(num_phrases):
                 if self.testing:
                     phrases_set:QuerySet[Phrase] = Phrase.objects.all()
-                    phrases.append(phrases_set[random.randint(0, phrases_set.count())].phrase)
+                    phrase = phrases_set[random.randint(0, phrases_set.count())].phrase
+                    phrases.append(phrase)
                     Print('generating testing phrase', _)
         else:
             Print('generating phrase')
@@ -80,6 +70,17 @@ class PhraseGenerator:
 
             for option in option_split:
                 option = option.replace('"', '').replace('\n', '')
+                
+                try:
+                    # in case the option are being enumerated (1. option) we remove the number
+                    int(option[0])
+                    option = option[2:]
+                except ValueError:
+                    pass
+                
+                if not option:
+                    continue
+
                 to_return.append(option)
 
         return to_return
