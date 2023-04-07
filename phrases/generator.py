@@ -67,7 +67,8 @@ class PhraseGenerator:
             
 
         cleaned_phrases = self.clean_phrases(phrases)
-        threading.Thread(target=self.save_phrases_to_db, kwargs={'phrases':cleaned_phrases}).start()
+        if not self.testing:
+            threading.Thread(target=self.save_phrases_to_db, kwargs={'phrases':cleaned_phrases}).start()
         return cleaned_phrases
 
 
