@@ -40,3 +40,13 @@ class FNReturnMonoPhrase(Code):
 class FNSelectTopic(Code):
     code = 'FGT-101'
     message = 'Select topic'
+
+
+class PhrasesP5(Code):
+    code = 'P-5'
+    message = 'Returns 5 phrases'
+
+
+class PhrasesP1(Code):
+    code = 'P-1'
+    message = 'Returns 1 phrases'

@@ -15,7 +15,7 @@ from phrases.generator import PhraseGenerator
 
 from gameplay.codes import (
     Code, BKFirstPhrasesGenerated, BKNotEnoughPhrasesToReturn, BKTopicNotSelected, BKTopicSelected,
-    FNReturnPentagonPhrases, FNReturnMonoPhrase, FNSelectTopic
+    FNReturnPentagonPhrases, FNReturnMonoPhrase, FNSelectTopic, PhrasesP5, PhrasesP1
 )
 
 
@@ -102,15 +102,17 @@ class GamePlayConsumer(WebsocketConsumer):
 
         if data['code'] == FNReturnMonoPhrase.code:
             options_to_return = 1
+            code_to_return = PhrasesP1
         elif data['code'] == FNReturnPentagonPhrases.code:
             options_to_return = 5
+            code_to_return = PhrasesP5
 
         if not self.options:
             self.send_response(code=BKNotEnoughPhrasesToReturn)
             return
 
         with self.options_lock:
-            self.send_response(None, extra_data={"options": self.options[:options_to_return]})
+            self.send_response(code_to_return, extra_data={"options": self.options[:options_to_return]})
             self.options = self.options[5:]
 
 
