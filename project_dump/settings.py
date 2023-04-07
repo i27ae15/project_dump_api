@@ -57,7 +57,6 @@ INSTALLED_APPS = [
 
     # local apps
     'users',
-    'register',
     'gameplay',
     'phrases',
 

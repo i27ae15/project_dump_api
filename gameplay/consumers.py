@@ -54,7 +54,7 @@ class GamePlayConsumer(WebsocketConsumer):
             FNReturnMonoPhrase.code: self.return_phrases,
         }
         super().__init__(*args, **kwargs)
-        self.phrases_generator = PhraseGenerator(self.current_topic, testing=False)
+        self.phrases_generator = PhraseGenerator(self.current_topic, testing=True)
 
 
     def connect(self):
