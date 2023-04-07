@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 ]
 
+
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',

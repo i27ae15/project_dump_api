@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        topic:StoryTopic = StoryTopic.objects.get(id='e4c39256-56e0-4083-bd9a-70e86de21dc0')
+        topic:StoryTopic = StoryTopic.objects.create(name='aleatorio', language=1) 
         absolute_route = os.path.join(os.getcwd(), 'phrases.txt')
 
         with open(absolute_route, 'r', encoding='UTF-8') as file:
