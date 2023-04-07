@@ -3,13 +3,20 @@ import threading
 
 
 from time import sleep
+from asgiref.sync import sync_to_async
 
 
-from channels.generic.websocket import WebsocketConsumer, AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 
 
 from phrases.models.models import StoryTopic
 from phrases.generator import PhraseGenerator
+
+
+from gameplay.codes import (
+    Code, BKFirstPhrasesGenerated, BKNotEnoughPhrasesToReturn, BKTopicNotSelected, BKTopicSelected,
+    FNReturnPentagonPhrases, FNReturnMonoPhrase, FNSelectTopic
+)
 
 
 from print_pp.logging import Print
@@ -20,17 +27,17 @@ BACKEND_CODES_INFORMATION = {
     "BGT-200": "Topic selected",
     "BGT-400": "Topic not selected",
 
-    "BGP-200": "Initial phrases generated",
-    "BGP-205": "Initial phrases still not generated",
+    "BGP-200": "First phrases generated",
+    "BGP-205": "Not enough phrases to return",
 }
 
 
 FRONTEND_CODES_INFORMATION = {
     "FGT-101": "Select topic",
 
-    "FGP-100": "Generate initial phrases requested",
-    "FGP-101": "Initial phrases requested",
-    "FGP-102": "Next phrases requested",
+    "FGP-100": "Start phrase generation",
+    "FGP-101": "Returns 5 phrases",
+    "FGP-102": "Returns 1 phrases",
 }
 
 
@@ -38,15 +45,16 @@ class GamePlayConsumer(WebsocketConsumer):
 
     MAX_OPTIONS_TO_GENERATE = 10
 
+
     def __init__(self, *args, **kwargs):
         self.current_topic = None
         self.codes = {
-            "FGT-101": self.set_current_topic,
-            "FGP-101": self.return_initial_phrases,
-            "FGP-102": self.return_next_phrase,
+            FNSelectTopic.code: self.set_current_topic,
+            FNReturnPentagonPhrases.code: self.return_phrases,
+            FNReturnMonoPhrase.code: self.return_phrases,
         }
         super().__init__(*args, **kwargs)
-        self.phrases_generator = PhraseGenerator(self.current_topic)
+        self.phrases_generator = PhraseGenerator(self.current_topic, testing=False)
 
 
     def connect(self):
@@ -71,6 +79,7 @@ class GamePlayConsumer(WebsocketConsumer):
 
     def generate_phrases(self) -> list[str]:
         is_first_time = True
+
         while True:
             sleep(2)
             options_to_generate = self.MAX_OPTIONS_TO_GENERATE - len(self.options)
@@ -84,31 +93,26 @@ class GamePlayConsumer(WebsocketConsumer):
                 self.options.extend(options)
             
             if is_first_time:
-                self.send(text_data=json.dumps({"code": "G200"}))
+                self.send_response(code=BKFirstPhrasesGenerated)
                 is_first_time = False
 
     
-    def return_initial_phrases(self, data:dict):
+    def return_phrases(self, data:dict):
+        
+
+        if data['code'] == FNReturnMonoPhrase.code:
+            options_to_return = 1
+        elif data['code'] == FNReturnPentagonPhrases.code:
+            options_to_return = 5
 
         if not self.options:
-            self.send(text_data=json.dumps({"code": "G205"}))
+            self.send_response(code=BKNotEnoughPhrasesToReturn)
             return
 
         with self.options_lock:
-            self.send(text_data=json.dumps({"code": "G200", "options": self.options[:5]}))
+            self.send_response(code=BKFirstPhrasesGenerated, extra_data={"options": self.options[:options_to_return]})
             self.options = self.options[5:]
 
-    
-    def return_next_phrase(self, data:dict):
-
-        if not self.options:
-            self.send(text_data=json.dumps({"code": "G205"}))
-            return
-
-        with self.options_lock:
-            self.send(text_data=json.dumps({"code": "G200", "options": self.options[:1]}))
-            self.options = self.options[1:]
-    
 
     def set_current_topic(self, data:dict):
         
@@ -118,7 +122,20 @@ class GamePlayConsumer(WebsocketConsumer):
             self.current_topic = None
             return
 
-        try: self.current_topic = StoryTopic.objects.get(id=topic_id).spanish_name
-        except: self.send(text_data=json.dumps({"code": "BGT-404"}))
+        try: 
+            self.current_topic = StoryTopic.objects.get(id=topic_id).name
+        except: 
+            self.send_response(code=BKTopicNotSelected)
 
-        self.send(text_data=json.dumps({"code": "BGT-200"}))
+        self.send_response(code=BKTopicSelected, extra_data={"topic_name": self.current_topic})
+
+    
+    def send_response(self, code:Code, extra_data:dict=None):
+
+        data = {"code": code.code}
+        
+        if extra_data: 
+            data.update(extra_data)
+        
+        self.send(text_data=json.dumps(data))
+
